@@ -9,22 +9,23 @@ namespace LicenseIntegrationAPIDemo
 {
     internal class Program
     {
-        private static readonly string _url = "http://localhost:22143/";
-        private static readonly int _client_id = 5;
-        private static readonly string _api_key = "417DE17321299EFE";
-        private static readonly string _event_key = "F5C7193E788D8B8EFACB7AF52E02AD4D";
+        private static readonly string _url = "https://api.fpleads.io";
+        private static readonly int _client_id = 4; // replace with the right value
+        private static readonly string _api_key = "759E5A5EAB1B4082"; // replace with the right value
+        private static readonly string _event_key = "5A48E29896CFC78290A6326958CC3B81"; // replace with the right value
+        private const int SUCCESS_NUMBER = 0;
 
         static async Task Main(string[] args)
         {
             await GetLicenses();
 
-            await GetLicenses("01-01-2024", DateTime.Now.ToString("MM-dd-yyyy"));
+            // await GetLicenses("01-01-2024", DateTime.Now.ToString("MM-dd-yyyy"));
 
-            await CreateLicense();
+            // await CreateLicense();
 
-            await UpdateLicense("152z29g44");
+            // await UpdateLicense("152z29g44");
 
-            await DeleteLicense("9q51u74b4");
+            // await DeleteLicense("9q51u74b4");
         }
 
         /// <summary>
@@ -147,33 +148,33 @@ namespace LicenseIntegrationAPIDemo
 
                 var request = new LicenseCreationRequest()
                 {
-                    FirstName = "Fairplicity",
-                    LastName = "Fairplicity",
-                    Email = "Fairplicity@Fairplicity.com",
-                    LeadsEmail = "Fairplicity@Fairplicity.com",
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "JohnDoe@email.com",
+                    LeadsEmail = "JohnDoe@email.com",
                     Booth = "111",
                     Company = "Fairplicity",
                     HowManyLicenses = 2,
-                    OrderType = "Access Code",
+                    OrderType = "Access Code", // supported order types are  "Access Code";"Rental Device - iPhone SE";"Rental Device - iPad";"Rental Device - iPad Mini";"Rental Device - iTouch";"API Toolkit"; "Other";
                     Phone = "+1 (914) 801-7016"
                 };
 
                 var response = await httpClient.PostAsJsonAsync("/api/v1/licenses", request);
+                var result = await response.Content.ReadFromJsonAsync<AppError>();
 
-                if (response.IsSuccessStatusCode)
+                if (result.ErrorNumber == SUCCESS_NUMBER) // Indicates success
                 {
-                    var result = await response.Content.ReadFromJsonAsync<AppResponse>();
 
-                    Console.WriteLine($"Response: {result.Message}");
+                    Console.WriteLine($"Response: License has been created successfully.");
                 }
                 else
                 {
                     if (response.StatusCode == System.Net.HttpStatusCode.Forbidden
                         || response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                     {
-                        var result = await response.Content.ReadFromJsonAsync<AppResponse>();
+                        var content = await response.Content.ReadFromJsonAsync<AppResponse>();
 
-                        Console.WriteLine($"Response: {result.Message}");
+                        Console.WriteLine($"Response: {content.Message}");
                     }
                     else
                     {
@@ -220,33 +221,32 @@ namespace LicenseIntegrationAPIDemo
 
                 var request = new LicenseCreationRequest()
                 {
-                    FirstName = "Fairplicity",
-                    LastName = "Fairplicity",
-                    Email = "Fairplicity@Fairplicity.com",
-                    LeadsEmail = "Fairplicity@Fairplicity.com",
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "JohnDoe@email.com",
+                    LeadsEmail = "JohnDoe@email.com",
                     Booth = "111",
                     Company = "Fairplicity",
                     HowManyLicenses = 2,
-                    OrderType = "Access Code",
+                    OrderType = "Access Code", // supported order types are  "Access Code";"Rental Device - iPhone SE";"Rental Device - iPad";"Rental Device - iPad Mini";"Rental Device - iTouch";"API Toolkit"; "Other";
                     Phone = "+1 (914) 801-7016"
                 };
 
                 var response = await httpClient.PutAsJsonAsync($"/api/v1/licenses/{userName}", request);
+                var result = await response.Content.ReadFromJsonAsync<AppError>();
 
-                if (response.IsSuccessStatusCode)
+                if (result.ErrorNumber == SUCCESS_NUMBER) // Indicates success
                 {
-                    var result = await response.Content.ReadFromJsonAsync<AppResponse>();
-
-                    Console.WriteLine($"Response: {result.Message}");
+                    Console.WriteLine($"Response: License has been updated successfully.");
                 }
                 else
                 {
                     if (response.StatusCode == System.Net.HttpStatusCode.Forbidden
                         || response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                     {
-                        var result = await response.Content.ReadFromJsonAsync<AppResponse>();
+                        var content = await response.Content.ReadFromJsonAsync<AppResponse>();
 
-                        Console.WriteLine($"Response: {result.Message}");
+                        Console.WriteLine($"Response: {content.Message}");
                     }
                     else
                     {
@@ -304,12 +304,11 @@ namespace LicenseIntegrationAPIDemo
                 httpClient.DefaultRequestHeaders.Add("x-event-key", _event_key);
 
                 var response = await httpClient.DeleteAsync($"/api/v1/licenses/{userName}");
+                var result = await response.Content.ReadFromJsonAsync<AppError>();
 
-                if (response.IsSuccessStatusCode)
+                if (result.ErrorNumber == SUCCESS_NUMBER) // Indicates success
                 {
-                    var result = await response.Content.ReadFromJsonAsync<AppResponse>();
-
-                    Console.WriteLine($"Response: {result.Message}");
+                    Console.WriteLine($"Response: Delete opeation completed successfully.");
                 }
                 else
                 {
@@ -459,7 +458,7 @@ namespace LicenseIntegrationAPIDemo
         public string LeadsEmails { get; set; }
 
         /// <summary>
-        ///     Indicates account is Secured.
+        ///     Indicates account is Activated.
         /// </summary>
         public bool Activated { get; set; }
 
@@ -481,7 +480,7 @@ namespace LicenseIntegrationAPIDemo
         public string ExhibitorUserName { get; set; }
 
         /// <summary>
-        ///     <remarks>Could be retrieved only if account is not Secured.</remarks>
+        ///     <remarks>Could be retrieved only if account is not Activated.</remarks>
         /// </summary>
         public string ExhibitorPassword { get; set; }
     }
